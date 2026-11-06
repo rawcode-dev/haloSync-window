@@ -1,0 +1,124 @@
+name: HaloSync Windows CI & Release
+
+on:
+  push:
+    branches: [ "main" ]
+    tags: [ "v*" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: 'Version Bump (ignored if Custom Tag is set)'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      custom_tag:
+        description: 'Custom Tag (e.g. 2.0.0)'
+        required: false
+        type: string
+
+jobs:
+  security-scan:
+    name: CodeQL Security Scan
+    runs-on: windows-latest
+    permissions:
+      security-events: write
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup .NET 8 SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: csharp
+
+    - name: Restore dependencies
+      run: dotnet restore HaloSync.sln
+
+    - name: Build Solution for CodeQL
+      run: dotnet build HaloSync.sln -c Release --no-restore
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+
+  build-and-release:
+    name: Build & Publish Windows Executable
+    runs-on: windows-latest
+    needs: [security-scan]
+    permissions:
+      contents: write
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup .NET 8 SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore HaloSync.sln
+
+    - name: Publish Self-Contained Single-File Executable
+      shell: pwsh
+      run: |
+        dotnet publish HaloSyncWin/HaloSyncWin.csproj `
+          -c Release `
+          -r win-x64 `
+          --self-contained true `
+          -p:PublishSingleFile=true `
+          -p:IncludeNativeLibrariesForSelfExtract=true `
+          -p:EnableCompressionInSingleFile=true `
+          -o ./publish
+
+        # Ensure Shaders directory with ZoneSampler.hlsl is in the output package
+        if (-not (Test-Path "./publish/Shaders")) {
+          New-Item -ItemType Directory -Path "./publish/Shaders" -Force
+        }
+        Copy-Item -Path "HaloSyncWin/Shaders/ZoneSampler.hlsl" -Destination "./publish/Shaders/ZoneSampler.hlsl" -Force
+
+        # Copy standalone exe with clear release naming
+        Copy-Item -Path "./publish/HaloSyncWin.exe" -Destination "HaloSync-Windows-x64.exe" -Force
+
+        # Create portable zip package
+        Compress-Archive -Path "./publish/*" -DestinationPath "HaloSync-Windows-x64.zip" -Force
+
+    - name: Upload Release Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: HaloSync-Windows-Release
+        path: |
+          HaloSync-Windows-x64.exe
+          HaloSync-Windows-x64.zip
+
+    - name: Bump version and push tag
+      if: github.event_name != 'pull_request'
+      id: tag_version
+      uses: mathieudutour/github-tag-action@v6.2
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        default_bump: ${{ github.event.inputs.bump_type || 'patch' }}
+        custom_tag: ${{ github.event.inputs.custom_tag }}
+        custom_release_rules: "feat:patch,fix:patch,chore:patch,refactor:patch,docs:patch,style:patch,test:patch,perf:patch"
+
+    - name: Publish GitHub Release
+      if: github.event_name != 'pull_request'
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ steps.tag_version.outputs.new_tag }}
+        name: "HaloSync Windows ${{ steps.tag_version.outputs.new_tag }}"
+        files: |
+          HaloSync-Windows-x64.exe
+          HaloSync-Windows-x64.zip
+        generate_release_notes: true
+

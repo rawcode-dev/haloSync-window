@@ -1,0 +1,154 @@
+<Application x:Class="HaloSyncWin.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="clr-namespace:HaloSyncWin.UI.Common"
+             StartupUri="UI/MainWindow.xaml">
+    <Application.Resources>
+        <!-- Design Colors -->
+        <Color x:Key="HaloBackground">#121214</Color>
+        <Color x:Key="HaloCard">#1A1A1E</Color>
+        <Color x:Key="HaloCardHover">#24242A</Color>
+        <Color x:Key="HaloBorder">#2C2C34</Color>
+        <Color x:Key="HaloPrimary">#7B61FF</Color>
+        <Color x:Key="HaloAccent">#FF6B9D</Color>
+        <Color x:Key="HaloSuccess">#4BFF91</Color>
+        <Color x:Key="HaloWarning">#F5C842</Color>
+        <Color x:Key="HaloError">#FF5A5A</Color>
+
+        <SolidColorBrush x:Key="HaloBackgroundBrush" Color="{StaticResource HaloBackground}" />
+        <SolidColorBrush x:Key="HaloCardBrush" Color="{StaticResource HaloCard}" />
+        <SolidColorBrush x:Key="HaloCardHoverBrush" Color="{StaticResource HaloCardHover}" />
+        <SolidColorBrush x:Key="HaloBorderBrush" Color="{StaticResource HaloBorder}" />
+        <SolidColorBrush x:Key="HaloPrimaryBrush" Color="{StaticResource HaloPrimary}" />
+        <SolidColorBrush x:Key="HaloAccentBrush" Color="{StaticResource HaloAccent}" />
+        <SolidColorBrush x:Key="HaloSuccessBrush" Color="{StaticResource HaloSuccess}" />
+        <SolidColorBrush x:Key="HaloWarningBrush" Color="{StaticResource HaloWarning}" />
+        <SolidColorBrush x:Key="HaloErrorBrush" Color="{StaticResource HaloError}" />
+
+        <SolidColorBrush x:Key="TextPrimaryBrush" Color="#FFFFFF" />
+        <SolidColorBrush x:Key="TextSecondaryBrush" Color="#9E9EA8" />
+        <SolidColorBrush x:Key="TextTertiaryBrush" Color="#666672" />
+
+        <!-- Brand Linear Gradient -->
+        <LinearGradientBrush x:Key="HaloGradientBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="{StaticResource HaloPrimary}" Offset="0.0" />
+            <GradientStop Color="{StaticResource HaloAccent}" Offset="1.0" />
+        </LinearGradientBrush>
+
+        <!-- Converters -->
+        <converters:BoolToVisibilityConverter x:Key="BoolToVis" />
+        <converters:BoolToVisibilityConverter x:Key="InverseBoolToVis" Invert="True" />
+        <converters:NullToVisibilityConverter x:Key="NullToVis" />
+        <converters:PercentageConverter x:Key="PctConverter" />
+        <converters:EqualityToBoolConverter x:Key="EqToBool" />
+
+        <!-- Glass Card Style -->
+        <Style x:Key="GlassCard" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource HaloCardBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource HaloBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Padding" Value="16" />
+        </Style>
+
+        <!-- Base TextBlock Style -->
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+            <Setter Property="FontFamily" Value="Segoe UI, Segoe UI Variable Display, sans-serif" />
+        </Style>
+
+        <!-- Primary Action Button -->
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource HaloPrimaryBrush}" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Padding" Value="16,8" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Mode Tile Button -->
+        <Style x:Key="ModeTileButton" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource HaloCardBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource HaloBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+            <Setter Property="Padding" Value="12,14" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Sleek Slider Style -->
+        <Style TargetType="Slider">
+            <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource HaloPrimaryBrush}"/>
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Slider">
+                        <Grid VerticalAlignment="Center">
+                            <Track x:Name="PART_Track">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="{x:Static Slider.DecreaseLarge}">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="RepeatButton">
+                                                <Border Background="{StaticResource HaloPrimaryBrush}" Height="4" CornerRadius="2"/>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.DecreaseRepeatButton>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="{x:Static Slider.IncreaseLarge}">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="RepeatButton">
+                                                <Border Background="#2C2C34" Height="4" CornerRadius="2"/>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.IncreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb>
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Ellipse Width="16" Height="16" Fill="#FFFFFF">
+                                                    <Ellipse.Effect>
+                                                        <DropShadowEffect BlurRadius="6" ShadowDepth="1" Opacity="0.4"/>
+                                                    </Ellipse.Effect>
+                                                </Ellipse>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Application.Resources>
+</Application>

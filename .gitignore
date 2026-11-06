@@ -1,0 +1,24 @@
+## Visual Studio & .NET Build Artifacts
+bin/
+obj/
+out/
+publish/
+
+## Visual Studio cache & temporary files
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+
+## macOS files
+.DS_Store
+._*
+
+## Windows temporary files
+Thumbs.db
+ehthumbs.db
+
+## Logs
+*.log
+

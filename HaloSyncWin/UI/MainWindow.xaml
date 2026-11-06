@@ -1,0 +1,405 @@
+<Window x:Class="HaloSyncWin.UI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:models="clr-namespace:HaloSyncWin.Models"
+        mc:Ignorable="d"
+        Title="HaloSync" Height="680" Width="980"
+        MinHeight="620" MinWidth="880"
+        Background="{StaticResource HaloBackgroundBrush}"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- ================= SIDEBAR ================= -->
+        <Border Grid.Column="0" Background="#16161A" BorderBrush="{StaticResource HaloBorderBrush}" BorderThickness="0,0,1,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- Brand Header -->
+                <StackPanel Grid.Row="0" Margin="20,24,20,20">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="✦" FontSize="20" Foreground="{StaticResource HaloPrimaryBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="HaloSync" FontSize="20" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock Text="Windows Pipeline" FontSize="11" Foreground="{StaticResource TextTertiaryBrush}" Margin="28,2,0,0"/>
+                </StackPanel>
+
+                <!-- Navigation List -->
+                <StackPanel Grid.Row="1" Margin="12,0">
+                    <Button Content="  🏠  Home" Command="{Binding SelectTabCommand}" CommandParameter="Home" Style="{StaticResource PrimaryButton}" Background="Transparent" HorizontalContentAlignment="Left" Height="40" Margin="0,2"/>
+                    <Button Content="  ✨  Effects" Command="{Binding SelectTabCommand}" CommandParameter="Effects" Style="{StaticResource PrimaryButton}" Background="Transparent" HorizontalContentAlignment="Left" Height="40" Margin="0,2"/>
+                    <Button Content="  📐  Layout" Command="{Binding SelectTabCommand}" CommandParameter="Layout" Style="{StaticResource PrimaryButton}" Background="Transparent" HorizontalContentAlignment="Left" Height="40" Margin="0,2"/>
+                    <Button Content="  🎯  Calibration" Command="{Binding SelectTabCommand}" CommandParameter="Calibration" Style="{StaticResource PrimaryButton}" Background="Transparent" HorizontalContentAlignment="Left" Height="40" Margin="0,2"/>
+                    <Button Content="  📊  Diagnostics" Command="{Binding SelectTabCommand}" CommandParameter="Diagnostics" Style="{StaticResource PrimaryButton}" Background="Transparent" HorizontalContentAlignment="Left" Height="40" Margin="0,2"/>
+                    <Button Content="  ⚙️  Settings" Command="{Binding SelectTabCommand}" CommandParameter="Settings" Style="{StaticResource PrimaryButton}" Background="Transparent" HorizontalContentAlignment="Left" Height="40" Margin="0,2"/>
+                </StackPanel>
+
+                <!-- Footer: Controller Status -->
+                <Border Grid.Row="2" Background="#1A1A20" Padding="14" Margin="12" CornerRadius="10" BorderBrush="{StaticResource HaloBorderBrush}" BorderThickness="1">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                            <Ellipse Width="8" Height="8" Fill="{Binding DeviceStatusColor}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding DiscoveredDevice.Name, FallbackValue='Searching...'}" FontWeight="SemiBold" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}"/>
+                        </StackPanel>
+                        <TextBlock Text="{Binding DiscoveredDevice.Address, FallbackValue='mDNS discovery active'}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- ================= MAIN DETAIL VIEW ================= -->
+        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <Grid Margin="32,24,32,32">
+
+                <!-- TAB 1: HOME -->
+                <StackPanel Visibility="{Binding SelectedTab, Converter={StaticResource EqToBool}, ConverterParameter=Home, Converter={StaticResource BoolToVis}}">
+                    <!-- Header with Power Button -->
+                    <Grid Margin="0,0,0,24">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="HaloSync" FontSize="28" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                            <TextBlock Text="{Binding StatusText}" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                        </StackPanel>
+
+                        <!-- Hardware Master Power Button -->
+                        <Button HorizontalAlignment="Right" Command="{Binding TogglePowerCommand}" Width="56" Height="56" Cursor="Hand">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border CornerRadius="28" Background="{StaticResource HaloCardBrush}" BorderBrush="{StaticResource HaloBorderBrush}" BorderThickness="1">
+                                        <TextBlock Text="⏻" FontSize="22" Foreground="{Binding IsDeviceOn, Converter={StaticResource BoolToVis}, ConverterParameter='True'}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </Grid>
+
+                    <!-- Status Cards -->
+                    <Grid Margin="0,0,0,20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="16" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Controller Info Card -->
+                        <Border Grid.Column="0" Style="{StaticResource GlassCard}">
+                            <StackPanel>
+                                <TextBlock Text="CONTROLLER" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+                                <TextBlock Text="{Binding DiscoveredDevice.Name, FallbackValue='No Controller'}" FontSize="14" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding DiscoveredDevice.FirmwareVersion, StringFormat='Firmware: {0}', FallbackValue='Offline'}" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Display Picker Card -->
+                        <Border Grid.Column="2" Style="{StaticResource GlassCard}">
+                            <StackPanel>
+                                <TextBlock Text="ACTIVE DISPLAY" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+                                <ComboBox ItemsSource="{Binding Displays}" SelectedItem="{Binding SelectedDisplay}" DisplayMemberPath="Name" Background="#24242A" Foreground="#FFFFFF" Padding="6,4"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- Main Screen Sync Section -->
+                    <Border Style="{StaticResource GlassCard}">
+                        <StackPanel>
+                            <!-- Master Toggle Row -->
+                            <Grid Margin="0,0,0,20">
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="Screen Synchronization" FontSize="16" FontWeight="SemiBold"/>
+                                    <TextBlock Text="Real-time GPU sampling and LED color projection" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                </StackPanel>
+                                <Button HorizontalAlignment="Right" Content="{Binding IsSyncRunning, Converter={StaticResource BoolToVis}, ConverterParameter='Running'}"
+                                        Command="{Binding ToggleScreenSyncCommand}"
+                                        Style="{StaticResource PrimaryButton}"
+                                        Background="{Binding IsSyncRunning, Converter={StaticResource BoolToVis}, ConverterParameter='#FF5A5A', FallbackValue='#7B61FF'}"/>
+                            </Grid>
+
+                            <Border Height="1" Background="{StaticResource HaloBorderBrush}" Margin="0,0,0,20"/>
+
+                            <!-- Mode Presets -->
+                            <TextBlock Text="SYNC PRESETS" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,0,0,12"/>
+                            <UniformGrid Columns="4" Rows="2" Margin="0,0,0,24">
+                                <Button Content="✨ Ambient" Command="{Binding SelectModeCommand}" CommandParameter="{x:Static models:AmbientMode.Ambient}" Style="{StaticResource ModeTileButton}" Margin="4"/>
+                                <Button Content="🎬 Movie" Command="{Binding SelectModeCommand}" CommandParameter="{x:Static models:AmbientMode.Movie}" Style="{StaticResource ModeTileButton}" Margin="4"/>
+                                <Button Content="🎮 Gaming" Command="{Binding SelectModeCommand}" CommandParameter="{x:Static models:AmbientMode.Gaming}" Style="{StaticResource ModeTileButton}" Margin="4"/>
+                                <Button Content="🖥️ Desktop" Command="{Binding SelectModeCommand}" CommandParameter="{x:Static models:AmbientMode.Desktop}" Style="{StaticResource ModeTileButton}" Margin="4"/>
+                                <Button Content="📖 Reading" Command="{Binding SelectModeCommand}" CommandParameter="{x:Static models:AmbientMode.Reading}" Style="{StaticResource ModeTileButton}" Margin="4"/>
+                                <Button Content="🎵 Music" Command="{Binding SelectModeCommand}" CommandParameter="{x:Static models:AmbientMode.Music}" Style="{StaticResource ModeTileButton}" Margin="4"/>
+                                <Button Content="🌙 Night" Command="{Binding SelectModeCommand}" CommandParameter="{x:Static models:AmbientMode.Night}" Style="{StaticResource ModeTileButton}" Margin="4"/>
+                                <Button Content="⚙️ Custom" Command="{Binding SelectModeCommand}" CommandParameter="{x:Static models:AmbientMode.Custom}" Style="{StaticResource ModeTileButton}" Margin="4"/>
+                            </UniformGrid>
+
+                            <!-- Sliders -->
+                            <StackPanel Margin="0,0,0,16">
+                                <Grid Margin="0,0,0,8">
+                                    <TextBlock Text="Brightness" FontSize="13" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding Settings.Brightness, Converter={StaticResource PctConverter}}" HorizontalAlignment="Right" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                </Grid>
+                                <Slider Minimum="0.0" Maximum="1.0" Value="{Binding Settings.Brightness}" SmallChange="0.05" LargeChange="0.1"/>
+                            </StackPanel>
+
+                            <StackPanel Margin="0,0,0,16">
+                                <Grid Margin="0,0,0,8">
+                                    <TextBlock Text="Smoothness (FluidEngine)" FontSize="13" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding Settings.Smoothness, Converter={StaticResource PctConverter}}" HorizontalAlignment="Right" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                </Grid>
+                                <Slider Minimum="0.0" Maximum="1.0" Value="{Binding Settings.Smoothness}" SmallChange="0.05" LargeChange="0.1"/>
+                            </StackPanel>
+
+                            <StackPanel>
+                                <Grid Margin="0,0,0,8">
+                                    <TextBlock Text="Ambient Strength (Saturation Boost)" FontSize="13" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding Settings.AmbientStrength, Converter={StaticResource PctConverter}}" HorizontalAlignment="Right" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                </Grid>
+                                <Slider Minimum="0.0" Maximum="1.0" Value="{Binding Settings.AmbientStrength}" SmallChange="0.05" LargeChange="0.1"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- TAB 2: EFFECTS -->
+                <StackPanel Visibility="{Binding SelectedTab, Converter={StaticResource EqToBool}, ConverterParameter=Effects, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="Hardware Effects" FontSize="26" FontWeight="Bold" Margin="0,0,0,4"/>
+                    <TextBlock Text="Standalone lighting effects processed directly on the WLED controller with 0% CPU usage." FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,20"/>
+
+                    <!-- Solid Colors Palette -->
+                    <Border Style="{StaticResource GlassCard}" Margin="0,0,0,20">
+                        <StackPanel>
+                            <TextBlock Text="SOLID COLOR PRESETS" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,0,0,12"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Width="36" Height="36" Background="#FF6A00" Command="{Binding SetSolidColorCommand}" CommandParameter="FF6A00" Margin="0,0,8,0" Style="{StaticResource PrimaryButton}"/>
+                                <Button Width="36" Height="36" Background="#7B61FF" Command="{Binding SetSolidColorCommand}" CommandParameter="7B61FF" Margin="0,0,8,0" Style="{StaticResource PrimaryButton}"/>
+                                <Button Width="36" Height="36" Background="#00E5FF" Command="{Binding SetSolidColorCommand}" CommandParameter="00E5FF" Margin="0,0,8,0" Style="{StaticResource PrimaryButton}"/>
+                                <Button Width="36" Height="36" Background="#00FF66" Command="{Binding SetSolidColorCommand}" CommandParameter="00FF66" Margin="0,0,8,0" Style="{StaticResource PrimaryButton}"/>
+                                <Button Width="36" Height="36" Background="#FF1744" Command="{Binding SetSolidColorCommand}" CommandParameter="FF1744" Margin="0,0,8,0" Style="{StaticResource PrimaryButton}"/>
+                                <Button Width="36" Height="36" Background="#FFD600" Command="{Binding SetSolidColorCommand}" CommandParameter="FFD600" Margin="0,0,8,0" Style="{StaticResource PrimaryButton}"/>
+                                <Button Width="36" Height="36" Background="#FFFFFF" Command="{Binding SetSolidColorCommand}" CommandParameter="FFFFFF" Margin="0,0,8,0" Style="{StaticResource PrimaryButton}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Effect Cards ItemsControl -->
+                    <ItemsControl ItemsSource="{Binding EffectsList}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="2"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Command="{Binding DataContext.SelectEffectCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Style="{StaticResource ModeTileButton}" Margin="6" Padding="16">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Icon}" FontSize="24" Margin="0,0,16,0" VerticalAlignment="Center"/>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Name}" FontSize="15" FontWeight="SemiBold"/>
+                                            <TextBlock Text="Offloaded to controller" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+                <!-- TAB 3: LAYOUT -->
+                <StackPanel Visibility="{Binding SelectedTab, Converter={StaticResource EqToBool}, ConverterParameter=Layout, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="LED Mapping" FontSize="26" FontWeight="Bold" Margin="0,0,0,4"/>
+                    <TextBlock Text="Configure physical LED segment counts counter-clockwise starting from bottom center." FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,20"/>
+
+                    <Border Style="{StaticResource GlassCard}" Margin="0,0,0,20">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,16">
+                                <TextBlock Text="PHYSICAL SEGMENT COUNTS" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextTertiaryBrush}"/>
+                                <TextBlock Text="{Binding Settings.Layout.TotalLEDs, StringFormat='Total LEDs: {0}'}" FontSize="12" FontWeight="Bold" Foreground="{StaticResource HaloPrimaryBrush}" HorizontalAlignment="Right"/>
+                            </Grid>
+
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Margin="4">
+                                    <TextBlock Text="Bottom Left" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBox Text="{Binding Settings.Layout.BottomLeft, UpdateSourceTrigger=PropertyChanged}" Background="#24242A" Foreground="#FFFFFF" Padding="6,4" Margin="0,4,0,0"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Margin="4">
+                                    <TextBlock Text="Left Edge" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBox Text="{Binding Settings.Layout.Left, UpdateSourceTrigger=PropertyChanged}" Background="#24242A" Foreground="#FFFFFF" Padding="6,4" Margin="0,4,0,0"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2" Margin="4">
+                                    <TextBlock Text="Top Edge" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBox Text="{Binding Settings.Layout.Top, UpdateSourceTrigger=PropertyChanged}" Background="#24242A" Foreground="#FFFFFF" Padding="6,4" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Grid Margin="0,0,0,16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Margin="4">
+                                    <TextBlock Text="Right Edge" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBox Text="{Binding Settings.Layout.Right, UpdateSourceTrigger=PropertyChanged}" Background="#24242A" Foreground="#FFFFFF" Padding="6,4" Margin="0,4,0,0"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Margin="4">
+                                    <TextBlock Text="Bottom Right" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBox Text="{Binding Settings.Layout.BottomRight, UpdateSourceTrigger=PropertyChanged}" Background="#24242A" Foreground="#FFFFFF" Padding="6,4" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <CheckBox Content="Test Layout on Hardware Strip (Red / Green / Blue / Yellow / Cyan)" IsChecked="{Binding Settings.IsLayoutTestActive}" Foreground="{StaticResource TextPrimaryBrush}" Margin="4,0,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Manual Edge Crop -->
+                    <Border Style="{StaticResource GlassCard}">
+                        <StackPanel>
+                            <TextBlock Text="CAPTURE BOUNDARIES" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+                            <CheckBox Content="Smart Black Bar Detection (Crops Letterbox / Pillarbox)" IsChecked="{Binding Settings.BlackBarDetection}" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+
+                            <TextBlock Text="Manual Edge Crop Percentages" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                    <TextBlock Text="{Binding Settings.CropTop, StringFormat='Top Crop: {0:0}%'}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <Slider Minimum="0" Maximum="50" Value="{Binding Settings.CropTop}" Margin="0,4,0,12"/>
+                                    <TextBlock Text="{Binding Settings.CropBottom, StringFormat='Bottom Crop: {0:0}%'}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <Slider Minimum="0" Maximum="50" Value="{Binding Settings.CropBottom}" Margin="0,4,0,0"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Margin="8,0,0,0">
+                                    <TextBlock Text="{Binding Settings.CropLeft, StringFormat='Left Crop: {0:0}%'}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <Slider Minimum="0" Maximum="50" Value="{Binding Settings.CropLeft}" Margin="0,4,0,12"/>
+                                    <TextBlock Text="{Binding Settings.CropRight, StringFormat='Right Crop: {0:0}%'}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <Slider Minimum="0" Maximum="50" Value="{Binding Settings.CropRight}" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- TAB 4: CALIBRATION -->
+                <StackPanel Visibility="{Binding SelectedTab, Converter={StaticResource EqToBool}, ConverterParameter=Calibration, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="Hardware Calibration" FontSize="26" FontWeight="Bold" Margin="0,0,0,4"/>
+                    <TextBlock Text="Identify dead LEDs, calibrate wall color compensation, and verify RGB channel ordering." FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,20"/>
+
+                    <Border Style="{StaticResource GlassCard}" Margin="0,0,0,20">
+                        <StackPanel>
+                            <TextBlock Text="COLOR CHANNEL VERIFICATION" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,0,0,12"/>
+                            <TextBlock Text="Click a color to test your strip and confirm Red, Green, and Blue match correctly." FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,16"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="Test Red" Command="{Binding RunColorTestCommand}" CommandParameter="Red" Style="{StaticResource PrimaryButton}" Background="#FF1744" Margin="0,0,8,0"/>
+                                <Button Content="Test Green" Command="{Binding RunColorTestCommand}" CommandParameter="Green" Style="{StaticResource PrimaryButton}" Background="#00FF66" Margin="0,0,8,0"/>
+                                <Button Content="Test Blue" Command="{Binding RunColorTestCommand}" CommandParameter="Blue" Style="{StaticResource PrimaryButton}" Background="#2979FF" Margin="0,0,8,0"/>
+                                <Button Content="Test White" Command="{Binding RunColorTestCommand}" CommandParameter="White" Style="{StaticResource PrimaryButton}" Background="#FFFFFF" Foreground="#000000" Margin="0,0,8,0"/>
+                                <Button Content="Stop Test" Command="{Binding StopCalibrationCommand}" Style="{StaticResource PrimaryButton}" Background="#3A3A42"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource GlassCard}">
+                        <StackPanel>
+                            <TextBlock Text="DIAGNOSTIC SWEEPS" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,0,0,12"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="Start LED Walk" Command="{Binding StartLedWalkCommand}" Style="{StaticResource PrimaryButton}" Margin="0,0,8,0"/>
+                                <Button Content="Brightness Sweep" Command="{Binding StartBrightnessSweepCommand}" Style="{StaticResource PrimaryButton}" Margin="0,0,8,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- TAB 5: DIAGNOSTICS -->
+                <StackPanel Visibility="{Binding SelectedTab, Converter={StaticResource EqToBool}, ConverterParameter=Diagnostics, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="Live Diagnostics" FontSize="26" FontWeight="Bold" Margin="0,0,0,4"/>
+                    <TextBlock Text="Real-time GPU frame timings, network packet statistics, and pipeline health." FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,20"/>
+
+                    <UniformGrid Columns="3" Margin="0,0,0,20">
+                        <Border Style="{StaticResource GlassCard}" Margin="6">
+                            <StackPanel>
+                                <TextBlock Text="CAPTURE FPS" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextTertiaryBrush}"/>
+                                <TextBlock Text="{Binding Diagnostics.CaptureFPS, StringFormat='{0:0} FPS'}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource HaloSuccessBrush}" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource GlassCard}" Margin="6">
+                            <StackPanel>
+                                <TextBlock Text="TOTAL LATENCY" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextTertiaryBrush}"/>
+                                <TextBlock Text="{Binding Diagnostics.TotalLatencyMs, StringFormat='{0:0.0} ms'}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource HaloPrimaryBrush}" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource GlassCard}" Margin="6">
+                            <StackPanel>
+                                <TextBlock Text="GPU COMPUTE" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextTertiaryBrush}"/>
+                                <TextBlock Text="{Binding Diagnostics.GpuProcessingMs, StringFormat='{0:0.0} ms'}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource HaloAccentBrush}" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
+
+                    <Border Style="{StaticResource GlassCard}">
+                        <StackPanel>
+                            <TextBlock Text="STATISTICS" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,0,0,12"/>
+                            <TextBlock Text="{Binding Diagnostics.PacketsSent, StringFormat='UDP Packets Dispatched: {0:N0}'}" FontSize="13" Margin="0,0,0,6"/>
+                            <TextBlock Text="{Binding Diagnostics.DroppedFrames, StringFormat='Dropped Frames: {0:N0}'}" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- TAB 6: SETTINGS -->
+                <StackPanel Visibility="{Binding SelectedTab, Converter={StaticResource EqToBool}, ConverterParameter=Settings, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="Settings" FontSize="26" FontWeight="Bold" Margin="0,0,0,4"/>
+                    <TextBlock Text="Configure launch behaviors, network protocols, and color science parameters." FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,20"/>
+
+                    <Border Style="{StaticResource GlassCard}" Margin="0,0,0,20">
+                        <StackPanel>
+                            <TextBlock Text="CONTROLLER CONNECTION" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,0,0,12"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBox Text="{Binding ManualIpAddress, UpdateSourceTrigger=PropertyChanged}" Width="220" Background="#24242A" Foreground="#FFFFFF" Padding="8,6" Margin="0,0,8,0"/>
+                                <Button Content="Connect IP" Command="{Binding ConnectManualIpCommand}" Style="{StaticResource PrimaryButton}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource GlassCard}" Margin="0,0,0,20">
+                        <StackPanel>
+                            <TextBlock Text="GENERAL" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,0,0,12"/>
+                            <CheckBox Content="Launch HaloSync at Windows Startup" IsChecked="{Binding Settings.LaunchAtLogin}" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                            <CheckBox Content="Start Minimized to System Tray" IsChecked="{Binding Settings.StartMinimized}" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                            <CheckBox Content="Automatically Reconnect to Last Controller" IsChecked="{Binding Settings.AutoReconnect}" Foreground="{StaticResource TextPrimaryBrush}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource GlassCard}">
+                        <StackPanel>
+                            <TextBlock Text="ADVANCED COLOR SCIENCE" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,0,0,12"/>
+
+                            <Grid Margin="0,0,0,12">
+                                <TextBlock Text="Sampling Depth (Edge radius in pixels)" FontSize="13"/>
+                                <TextBox Text="{Binding Settings.SamplingDepth, UpdateSourceTrigger=PropertyChanged}" Width="60" HorizontalAlignment="Right" Background="#24242A" Foreground="#FFFFFF" Padding="4,2"/>
+                            </Grid>
+
+                            <Grid Margin="0,0,0,12">
+                                <TextBlock Text="Display Gamma (Standard: 2.2, HDR: 1.0)" FontSize="13"/>
+                                <TextBox Text="{Binding Settings.Gamma, UpdateSourceTrigger=PropertyChanged}" Width="60" HorizontalAlignment="Right" Background="#24242A" Foreground="#FFFFFF" Padding="4,2"/>
+                            </Grid>
+
+                            <Button Content="Save Settings" Command="{Binding SaveSettingsCommand}" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Left" Margin="0,8,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</Window>
+
