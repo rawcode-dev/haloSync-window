@@ -14,6 +14,38 @@ namespace HaloSyncWin.UI.Common
         {
             bool b = value is bool v && v;
             if (Invert) b = !b;
+
+            if (targetType == typeof(Visibility))
+            {
+                return b ? Visibility.Visible : Visibility.Collapsed;
+            }
+
+            if (targetType == typeof(Brush) || targetType == typeof(Color))
+            {
+                if (parameter != null)
+                {
+                    try
+                    {
+                        var colorStr = parameter.ToString();
+                        if (colorStr == "True")
+                        {
+                            return b ? new SolidColorBrush(Color.FromRgb(75, 255, 145)) : new SolidColorBrush(Color.FromRgb(102, 102, 114));
+                        }
+                        if (b && !string.IsNullOrEmpty(colorStr))
+                        {
+                            return (SolidColorBrush)new BrushConverter().ConvertFromString(colorStr)!;
+                        }
+                    }
+                    catch { }
+                }
+                return Binding.DoNothing;
+            }
+
+            if (parameter != null && parameter.ToString() == "Running")
+            {
+                return b ? "Stop Sync" : "Start Sync";
+            }
+
             return b ? Visibility.Visible : Visibility.Collapsed;
         }
 
@@ -53,8 +85,18 @@ namespace HaloSyncWin.UI.Common
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value == null || parameter == null) return false;
-            return value.ToString() == parameter.ToString();
+            if (value == null || parameter == null)
+            {
+                if (targetType == typeof(Visibility)) return Visibility.Collapsed;
+                return false;
+            }
+
+            bool matches = string.Equals(value.ToString(), parameter.ToString(), StringComparison.OrdinalIgnoreCase);
+            if (targetType == typeof(Visibility))
+            {
+                return matches ? Visibility.Visible : Visibility.Collapsed;
+            }
+            return matches;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -65,6 +107,23 @@ namespace HaloSyncWin.UI.Common
             }
             return Binding.DoNothing;
         }
+    }
+
+    public class EqualityToVisibilityConverter : IValueConverter
+    {
+        public bool Invert { get; set; } = false;
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null || parameter == null)
+                return Invert ? Visibility.Visible : Visibility.Collapsed;
+
+            bool matches = string.Equals(value.ToString(), parameter.ToString(), StringComparison.OrdinalIgnoreCase);
+            if (Invert) matches = !matches;
+            return matches ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => Binding.DoNothing;
     }
 }
 

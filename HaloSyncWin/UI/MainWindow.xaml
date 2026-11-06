@@ -62,7 +62,7 @@
             <Grid Margin="32,24,32,32">
 
                 <!-- TAB 1: HOME -->
-                <StackPanel Visibility="{Binding SelectedTab, Converter={StaticResource EqToBool}, ConverterParameter=Home, Converter={StaticResource BoolToVis}}">
+                <StackPanel Visibility="{Binding SelectedTab, Converter={StaticResource EqToVis}, ConverterParameter=Home}">
                     <!-- Header with Power Button -->
                     <Grid Margin="0,0,0,24">
                         <StackPanel VerticalAlignment="Center">
@@ -167,7 +167,7 @@
                 </StackPanel>
 
                 <!-- TAB 2: EFFECTS -->
-                <StackPanel Visibility="{Binding SelectedTab, Converter={StaticResource EqToBool}, ConverterParameter=Effects, Converter={StaticResource BoolToVis}}">
+                <StackPanel Visibility="{Binding SelectedTab, Converter={StaticResource EqToVis}, ConverterParameter=Effects}">
                     <TextBlock Text="Hardware Effects" FontSize="26" FontWeight="Bold" Margin="0,0,0,4"/>
                     <TextBlock Text="Standalone lighting effects processed directly on the WLED controller with 0% CPU usage." FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,20"/>
 
@@ -211,7 +211,7 @@
                 </StackPanel>
 
                 <!-- TAB 3: LAYOUT -->
-                <StackPanel Visibility="{Binding SelectedTab, Converter={StaticResource EqToBool}, ConverterParameter=Layout, Converter={StaticResource BoolToVis}}">
+                <StackPanel Visibility="{Binding SelectedTab, Converter={StaticResource EqToVis}, ConverterParameter=Layout}">
                     <TextBlock Text="LED Mapping" FontSize="26" FontWeight="Bold" Margin="0,0,0,4"/>
                     <TextBlock Text="Configure physical LED segment counts counter-clockwise starting from bottom center." FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,20"/>
 
@@ -291,7 +291,7 @@
                 </StackPanel>
 
                 <!-- TAB 4: CALIBRATION -->
-                <StackPanel Visibility="{Binding SelectedTab, Converter={StaticResource EqToBool}, ConverterParameter=Calibration, Converter={StaticResource BoolToVis}}">
+                <StackPanel Visibility="{Binding SelectedTab, Converter={StaticResource EqToVis}, ConverterParameter=Calibration}">
                     <TextBlock Text="Hardware Calibration" FontSize="26" FontWeight="Bold" Margin="0,0,0,4"/>
                     <TextBlock Text="Identify dead LEDs, calibrate wall color compensation, and verify RGB channel ordering." FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,20"/>
 
@@ -321,7 +321,7 @@
                 </StackPanel>
 
                 <!-- TAB 5: DIAGNOSTICS -->
-                <StackPanel Visibility="{Binding SelectedTab, Converter={StaticResource EqToBool}, ConverterParameter=Diagnostics, Converter={StaticResource BoolToVis}}">
+                <StackPanel Visibility="{Binding SelectedTab, Converter={StaticResource EqToVis}, ConverterParameter=Diagnostics}">
                     <TextBlock Text="Live Diagnostics" FontSize="26" FontWeight="Bold" Margin="0,0,0,4"/>
                     <TextBlock Text="Real-time GPU frame timings, network packet statistics, and pipeline health." FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,20"/>
 
@@ -356,7 +356,7 @@
                 </StackPanel>
 
                 <!-- TAB 6: SETTINGS -->
-                <StackPanel Visibility="{Binding SelectedTab, Converter={StaticResource EqToBool}, ConverterParameter=Settings, Converter={StaticResource BoolToVis}}">
+                <StackPanel Visibility="{Binding SelectedTab, Converter={StaticResource EqToVis}, ConverterParameter=Settings}">
                     <TextBlock Text="Settings" FontSize="26" FontWeight="Bold" Margin="0,0,0,4"/>
                     <TextBlock Text="Configure launch behaviors, network protocols, and color science parameters." FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,20"/>
 

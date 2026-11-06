@@ -41,6 +41,7 @@
         <converters:NullToVisibilityConverter x:Key="NullToVis" />
         <converters:PercentageConverter x:Key="PctConverter" />
         <converters:EqualityToBoolConverter x:Key="EqToBool" />
+        <converters:EqualityToVisibilityConverter x:Key="EqToVis" />
 
         <!-- Glass Card Style -->
         <Style x:Key="GlassCard" TargetType="Border">
